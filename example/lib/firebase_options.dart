@@ -25,10 +25,7 @@ class DefaultFirebaseOptions {
     // ignore: missing_enum_constant_in_switch
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for android - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return android;
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
@@ -42,6 +39,14 @@ class DefaultFirebaseOptions {
       'DefaultFirebaseOptions are not supported for this platform.',
     );
   }
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyDcqyAeKCeUhtweWBq8UAQBBO2v26LqWkk',
+    appId: '1:1081752898559:android:abf4ab54b616425d47b5ca',
+    messagingSenderId: '1081752898559',
+    projectId: 'flutter-ring-kit',
+    storageBucket: 'flutter-ring-kit.appspot.com',
+  );
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCG0wdQyP91IErfR_wu0sRCGCs_92lbt7E',
