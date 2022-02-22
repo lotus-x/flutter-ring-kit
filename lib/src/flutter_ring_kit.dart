@@ -3,13 +3,22 @@ import 'package:flutter/services.dart';
 import 'package:flutter_ring_kit/src/models/android_notification_channel_data.dart';
 import 'package:flutter_ring_kit/src/models/android_ringer_data.dart';
 
-// ignore: avoid_classes_with_only_static_members
+typedef CallAnsweredCallBack = void Function(String callerId);
+
 class FlutterRingKit {
   final _channel = const MethodChannel('com.oryn.lotus/flutter_ring_kit');
+  final _callerEventChannel = const EventChannel(
+    'com.oryn.lotus/flutter_ring_kit/caller_callback',
+  );
+
+  CallAnsweredCallBack? _onCallAnswer;
 
   Future<void> init({
     required AndroidNotificationChannelData androidNotificationChannelData,
+    CallAnsweredCallBack? onCallAnswer,
   }) async {
+    // save call backs
+    _onCallAnswer = onCallAnswer;
     // check platform
     if (defaultTargetPlatform == TargetPlatform.android) {
       // create notification channel
@@ -29,6 +38,8 @@ class FlutterRingKit {
         },
       );
     }
+    // listen to events
+    listenCallerEvents();
   }
 
   Future<void> ring({
@@ -82,5 +93,22 @@ class FlutterRingKit {
   Future<String> launchedCallerId() async {
     final result = await _channel.invokeMethod("getLaunchedCallerId");
     return result as String;
+  }
+
+  void listenCallerEvents() {
+    _callerEventChannel.receiveBroadcastStream().listen((event) {
+      // check type
+      switch (event['type']) {
+        case "call_answered":
+          // get caller id
+          final callerId = event["callerId"] as String?;
+          // check empty
+          if (callerId == null) return;
+          // invoke callback
+          _onCallAnswer?.call(callerId);
+          break;
+        default:
+      }
+    });
   }
 }

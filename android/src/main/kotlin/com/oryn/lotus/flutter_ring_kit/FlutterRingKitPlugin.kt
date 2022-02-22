@@ -12,6 +12,7 @@ import com.oryn.lotus.flutter_ring_kit.utils.Definitions
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -21,6 +22,7 @@ import io.flutter.plugin.common.PluginRegistry
 class FlutterRingKitPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
     PluginRegistry.NewIntentListener {
     private lateinit var channel: MethodChannel
+    private lateinit var callerEventChannel: EventChannel
     private var context: Context? = null
 
     private var launchedOnCall = false
@@ -33,11 +35,19 @@ class FlutterRingKitPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
             "com.oryn.lotus/flutter_ring_kit"
         )
         channel.setMethodCallHandler(this)
+        callerEventChannel = EventChannel(
+            flutterPluginBinding.binaryMessenger,
+            "com.oryn.lotus/flutter_ring_kit/caller_callback"
+        )
+        callerEventChannel.setStreamHandler(
+            CallEventHandler(flutterPluginBinding.applicationContext)
+        )
     }
 
     override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
         this.context = null
         channel.setMethodCallHandler(null)
+        callerEventChannel.setStreamHandler(null)
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {

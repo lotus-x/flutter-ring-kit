@@ -59,6 +59,9 @@ class _MyAppState extends State<MyApp> {
     final ringKit = FlutterRingKit();
     // initialize
     await ringKit.init(
+      onCallAnswer: (callerId) {
+        print(callerId);
+      },
       androidNotificationChannelData: AndroidNotificationChannelData(
         ringerChannelId: "flutter_ring_kit",
         ringerChannelName: "Flutter Ring Kit",
