@@ -11,6 +11,11 @@ public class SwiftFlutterRingKitPlugin: NSObject, FlutterPlugin {
             binaryMessenger: registrar.messenger()
         )
         let instance = SwiftFlutterRingKitPlugin()
+        let callerEventChannel = FlutterEventChannel(
+            name: "com.oryn.lotus/flutter_ring_kit/caller_callback",
+            binaryMessenger: registrar.messenger()
+        )
+        callerEventChannel.setStreamHandler(CallEventHandler())
         // init call manager
         instance.callManager = CallManager()
         // add method call handler
@@ -25,6 +30,8 @@ public class SwiftFlutterRingKitPlugin: NSObject, FlutterPlugin {
             result(true)
         case "checkLaunchedUponCall":
             result(false)
+        case "getLaunchedCallerId":
+            result("")
         default:
             result(FlutterMethodNotImplemented)
         }
