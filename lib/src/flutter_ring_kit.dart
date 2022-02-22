@@ -49,39 +49,35 @@ class FlutterRingKit {
     String? callerImageUrl,
     required AndroidRingerData android,
   }) async {
-    try {
-      // check platform
-      switch (defaultTargetPlatform) {
-        case TargetPlatform.android:
-          await _channel.invokeMethod(
-            "showCallNotification",
-            {
-              "callerId": callerId,
-              "callerName": callerName,
-              "callerGender": callerGender,
-              "callerImageUrl": callerImageUrl,
-              "notificationChannelId": android.notificationChannelId,
-              "missedCallChannelId": android.missedCallChannelId,
-              "notificationTimeout": android.notificationTimeout.inMilliseconds,
-              "notificationIcon": android.notificationIcon,
-              "notificationColor": android.notificationColor,
-              "notificationTitle": android.notificationTitle,
-              "notificationDescription": android.notificationDescription,
-              "fullScreenTitle": android.fullScreenTitle,
-              "fullScreenDescription": android.fullScreenDescription,
-              "missedCallTitle": android.missedCallTitle,
-              "missedCallDescription": android.missedCallDescription,
-              "missedCallSubText": android.missedCallSubText,
-            },
-          );
-          break;
-        case TargetPlatform.iOS:
-          await _channel.invokeMethod("ringCall");
-          break;
-        default:
-      }
-    } catch (e) {
-      print(e);
+    // check platform
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        await _channel.invokeMethod(
+          "showCallNotification",
+          {
+            "callerId": callerId,
+            "callerName": callerName,
+            "callerGender": callerGender,
+            "callerImageUrl": callerImageUrl,
+            "notificationChannelId": android.notificationChannelId,
+            "missedCallChannelId": android.missedCallChannelId,
+            "notificationTimeout": android.notificationTimeout.inMilliseconds,
+            "notificationIcon": android.notificationIcon,
+            "notificationColor": android.notificationColor,
+            "notificationTitle": android.notificationTitle,
+            "notificationDescription": android.notificationDescription,
+            "fullScreenTitle": android.fullScreenTitle,
+            "fullScreenDescription": android.fullScreenDescription,
+            "missedCallTitle": android.missedCallTitle,
+            "missedCallDescription": android.missedCallDescription,
+            "missedCallSubText": android.missedCallSubText,
+          },
+        );
+        break;
+      case TargetPlatform.iOS:
+        await _channel.invokeMethod("ringCall");
+        break;
+      default:
     }
   }
 
