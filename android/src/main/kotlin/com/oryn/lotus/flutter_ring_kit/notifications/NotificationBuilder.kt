@@ -5,29 +5,31 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.os.Build
-import android.os.Bundle
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.oryn.lotus.flutter_ring_kit.CallerActivity
+import com.oryn.lotus.flutter_ring_kit.R
 import com.oryn.lotus.flutter_ring_kit.helpers.StringHelper
+import com.oryn.lotus.flutter_ring_kit.models.NotificationChannelData
+import com.oryn.lotus.flutter_ring_kit.models.RingerData
 import com.oryn.lotus.flutter_ring_kit.receivers.ActionBroadcastReceiver
 import com.oryn.lotus.flutter_ring_kit.utils.Definitions
 
 class NotificationBuilder(private val context: Context) {
-
-    fun createNotificationChannel() {
+    fun createNotificationChannels(channelData: NotificationChannelData) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
-        // init channel
-        val channel = NotificationChannel(
-            "test",
-            "Test",
+        // init channels
+        val ringingChannel = NotificationChannel(
+            channelData.ringerChannelId,
+            channelData.ringerChannelName,
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
             // set description
-            description = "Testing notifications"
+            description = channelData.ringerChannelDescription
 
             // get ringtone sound
             val ringtone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
@@ -38,32 +40,64 @@ class NotificationBuilder(private val context: Context) {
             }.build()
             setSound(ringtone, audioAttributes)
         }
-        // create channel
+        val missedCallChannel = NotificationChannel(
+            channelData.missedCallChannelId,
+            channelData.missedCallChannelName,
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            // set description
+            description = channelData.missedCallChannelDescription
+        }
+        // create channels
         with(NotificationManagerCompat.from(context)) {
-            createNotificationChannel(channel)
+            createNotificationChannels(listOf(ringingChannel, missedCallChannel))
         }
     }
 
-    fun showRingNotification(callerId: String) {
+    fun showRingNotification(ringerData: RingerData) {
         // create builder
-        val builder = NotificationCompat.Builder(context, "test")
-            .setContentTitle("Incoming Video Consultation")
-            .setContentText("Dr. Megahead Pillow, Appointment Number #3")
+        val builder = NotificationCompat.Builder(context, ringerData.notificationChannelId)
+            .setContentTitle(ringerData.notificationTitle)
+            .setContentText(ringerData.notificationDescription)
             .setPriority(NotificationCompat.PRIORITY_MAX)
-            .setSmallIcon(context.applicationInfo.icon)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOngoing(true)
             .setCategory(NotificationCompat.CATEGORY_CALL)
-            .setTimeoutAfter(60000)
+            .setTimeoutAfter(ringerData.notificationTimeout.toLong())
+            .setStyle(NotificationCompat.BigTextStyle().bigText(ringerData.notificationDescription))
         // add actions
-        addCallAcceptAction(callerId, builder)
-        addCallRejectAction(callerId, builder)
+        addCallAcceptAction(ringerData, builder)
+        addCallRejectAction(ringerData, builder)
         // set additional details
+        setIcon(ringerData, builder)
+        setColor(ringerData, builder)
         setSound(builder)
-        setFullScreenIntent(callerId, builder)
+        setFullScreenIntent(ringerData, builder)
+        setDeleteIntent(ringerData, builder)
         // show notification
         with(NotificationManagerCompat.from(context)) {
-            notify(callerId.hashCode(), builder.build())
+            notify(ringerData.callerId.hashCode(), builder.build())
+        }
+    }
+
+    private fun setIcon(ringerData: RingerData, builder: NotificationCompat.Builder) {
+        if (ringerData.notificationIcon == null) {
+            builder.setSmallIcon(context.applicationInfo.icon)
+        } else {
+            // get icon
+            val iconId = context.resources.getIdentifier(
+                ringerData.notificationIcon,
+                "drawable",
+                context.packageName
+            )
+            // check exist
+            if (iconId != 0) builder.setSmallIcon(iconId) else builder.setSmallIcon(context.applicationInfo.icon)
+        }
+    }
+
+    private fun setColor(ringerData: RingerData, builder: NotificationCompat.Builder) {
+        if (ringerData.notificationColor != null) {
+            builder.color = Color.parseColor(ringerData.notificationColor)
         }
     }
 
@@ -74,11 +108,9 @@ class NotificationBuilder(private val context: Context) {
         builder.setSound(ringtone)
     }
 
-    private fun setFullScreenIntent(callerId: String, builder: NotificationCompat.Builder) {
-        val bundle = Bundle()
-        bundle.putString(Definitions.EXTRA_CALLER_ID, callerId)
+    private fun setFullScreenIntent(ringerData: RingerData, builder: NotificationCompat.Builder) {
         val intent = Intent(context, CallerActivity::class.java).apply {
-            putExtras(bundle)
+            putExtras(ringerData.toBundle())
         }
         val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             PendingIntent.getActivity(
@@ -88,7 +120,7 @@ class NotificationBuilder(private val context: Context) {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
         } else {
-            PendingIntent.getActivity(
+            @Suppress("UnspecifiedImmutableFlag") PendingIntent.getActivity(
                 context,
                 0,
                 intent,
@@ -98,12 +130,10 @@ class NotificationBuilder(private val context: Context) {
         builder.setFullScreenIntent(pendingIntent, true)
     }
 
-    private fun addCallAcceptAction(callerId: String, builder: NotificationCompat.Builder) {
-        val bundle = Bundle()
-        bundle.putString(Definitions.EXTRA_CALLER_ID, callerId)
+    private fun setDeleteIntent(ringerData: RingerData, builder: NotificationCompat.Builder) {
         val intent = Intent(context, ActionBroadcastReceiver::class.java).apply {
-            action = Definitions.ACTION_CALL_ACCEPT
-            putExtras(bundle)
+            action = Definitions.ACTION_CALL_TIMED_OUT
+            putExtras(ringerData.toBundle())
         }
         val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             PendingIntent.getBroadcast(
@@ -113,7 +143,30 @@ class NotificationBuilder(private val context: Context) {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
         } else {
+            @Suppress("UnspecifiedImmutableFlag") PendingIntent.getBroadcast(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+            )
+        }
+        builder.setDeleteIntent(pendingIntent)
+    }
+
+    private fun addCallAcceptAction(ringerData: RingerData, builder: NotificationCompat.Builder) {
+        val intent = Intent(context, ActionBroadcastReceiver::class.java).apply {
+            action = Definitions.ACTION_CALL_ACCEPT
+            putExtras(ringerData.toBundle())
+        }
+        val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             PendingIntent.getBroadcast(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
+        } else {
+            @Suppress("UnspecifiedImmutableFlag") PendingIntent.getBroadcast(
                 context,
                 0,
                 intent,
@@ -129,12 +182,10 @@ class NotificationBuilder(private val context: Context) {
         builder.addAction(action)
     }
 
-    private fun addCallRejectAction(callerId: String, builder: NotificationCompat.Builder) {
-        val bundle = Bundle()
-        bundle.putString(Definitions.EXTRA_CALLER_ID, callerId)
+    private fun addCallRejectAction(ringerData: RingerData, builder: NotificationCompat.Builder) {
         val intent = Intent(context, ActionBroadcastReceiver::class.java).apply {
             action = Definitions.ACTION_CALL_REJECT
-            putExtras(bundle)
+            putExtras(ringerData.toBundle())
         }
         val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             PendingIntent.getBroadcast(
@@ -144,7 +195,7 @@ class NotificationBuilder(private val context: Context) {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
         } else {
-            PendingIntent.getBroadcast(
+            @Suppress("UnspecifiedImmutableFlag") PendingIntent.getBroadcast(
                 context,
                 0,
                 intent,
@@ -158,5 +209,22 @@ class NotificationBuilder(private val context: Context) {
         ).build()
         // add action to the notification builder
         builder.addAction(action)
+    }
+
+    fun showMissedCallNotification(ringerData: RingerData) {
+        // create builder
+        val builder = NotificationCompat.Builder(context, ringerData.missedCallChannelId)
+            .setContentTitle(ringerData.missedCallTitle)
+            .setContentText(ringerData.missedCallDescription)
+            .setSubText(ringerData.missedCallSubText)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setSmallIcon(android.R.drawable.stat_notify_missed_call)
+            .setColor(Color.RED)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setCategory(NotificationCompat.CATEGORY_MISSED_CALL)
+        // show notification
+        with(NotificationManagerCompat.from(context)) {
+            notify(ringerData.callerId.hashCode(), builder.build())
+        }
     }
 }

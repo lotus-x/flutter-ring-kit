@@ -22,12 +22,13 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   bool launchedUponCall = false;
+  String launchedCallerId = "";
 
   @override
   void initState() {
     super.initState();
     initFirebaseMessaging();
-    checkLaunchedUponCall();
+    initFlutterRingKit();
   }
 
   Future<void> initFirebaseMessaging() async {
@@ -45,7 +46,7 @@ class _MyAppState extends State<MyApp> {
         );
       }
 
-      FlutterRingKit.ring();
+      ring();
     });
 
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -53,10 +54,28 @@ class _MyAppState extends State<MyApp> {
     debugPrint(await FirebaseMessaging.instance.getToken());
   }
 
-  Future<void> checkLaunchedUponCall() async {
-    final launchedOnCall = await FlutterRingKit.launchedUponCall();
+  Future<void> initFlutterRingKit() async {
+    // create ring kit
+    final ringKit = FlutterRingKit();
+    // initialize
+    await ringKit.init(
+      androidNotificationChannelData: AndroidNotificationChannelData(
+        ringerChannelId: "flutter_ring_kit",
+        ringerChannelName: "Flutter Ring Kit",
+        ringerChannelDescription: "Flutter Ring Kit Testing",
+        missedCallChannelId: "flutter_ring_kit_missed_calls",
+        missedCallChannelName: "Flutter Ring Kit Missed Calls",
+        missedCallChannelDescription: "Flutter Ring Kit Testing",
+      ),
+    );
+    final launchedOnCall = await ringKit.launchedUponCall();
+    String _launchedCallerId = "";
+    if (launchedOnCall) {
+      _launchedCallerId = await ringKit.launchedCallerId();
+    }
     setState(() {
       launchedUponCall = launchedOnCall;
+      launchedCallerId = _launchedCallerId;
     });
   }
 
@@ -72,13 +91,25 @@ class _MyAppState extends State<MyApp> {
           children: [
             Center(
               child: TextButton(
-                onPressed: () => FlutterRingKit.ring(),
+                onPressed: () => ring(),
                 child: const Text("Show Notification Call"),
+              ),
+            ),
+            Center(
+              child: TextButton(
+                onPressed: () async {
+                  await Future.delayed(const Duration(seconds: 2));
+                  ring();
+                },
+                child: const Text("Show Notification Call After Delay"),
               ),
             ),
             const SizedBox(height: 20),
             Center(
               child: Text("launched upon call: $launchedUponCall"),
+            ),
+            Center(
+              child: Text("launched caller ID: $launchedCallerId"),
             )
           ],
         ),
@@ -89,5 +120,33 @@ class _MyAppState extends State<MyApp> {
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   debugPrint("Handling a background message: ${message.data}");
-  FlutterRingKit.ring();
+  ring();
+}
+
+Future<void> ring() async {
+  // create ring kit
+  final ringKit = FlutterRingKit();
+  // ring
+  await ringKit.ring(
+    callerId: "1234",
+    callerName: "Dr. Megahead Pillow",
+    // callerGender: false,
+    // callerImageUrl:
+    //     "https://www.rd.com/wp-content/uploads/2017/09/01-shutterstock_476340928-Irina-Bg.jpg?resize=760,506",
+    android: AndroidRingerData(
+      notificationChannelId: "flutter_ring_kit",
+      missedCallChannelId: "flutter_ring_kit_missed_calls",
+      notificationTimeout: const Duration(seconds: 10),
+      notificationIcon: "sample_icon",
+      notificationColor: "#00e047",
+      notificationTitle: "Incoming Video Consultation",
+      notificationDescription:
+          "Dr. Megahead Pillow, Appointment Number #3, test test test test",
+      fullScreenTitle: "Incoming Consultation",
+      fullScreenDescription: "Appointment Number #1",
+      missedCallTitle: "Missed Consultation",
+      missedCallDescription: "Dr. Megahead Pillow, Appointment Number #3",
+      missedCallSubText: "Missed Consultation",
+    ),
+  );
 }

@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.annotation.NonNull
+import com.oryn.lotus.flutter_ring_kit.models.NotificationChannelData
+import com.oryn.lotus.flutter_ring_kit.models.RingerData
 import com.oryn.lotus.flutter_ring_kit.notifications.NotificationBuilder
 import com.oryn.lotus.flutter_ring_kit.utils.Definitions
 
@@ -22,6 +24,7 @@ class FlutterRingKitPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
     private var context: Context? = null
 
     private var launchedOnCall = false
+    private var launchedCallerId = ""
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         this.context = flutterPluginBinding.applicationContext
@@ -59,15 +62,27 @@ class FlutterRingKitPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
             return
         }
         when (call.method) {
-            "showCallNotification" -> {
+            "createNotificationChannel" -> {
+                // extract data
+                val data = NotificationChannelData(call.arguments())
                 // create notification builder
                 val notificationBuilder = NotificationBuilder(this.context!!)
-                notificationBuilder.createNotificationChannel()
-                notificationBuilder.showRingNotification("123")
-                result.success("Android ${android.os.Build.VERSION.RELEASE}")
+                notificationBuilder.createNotificationChannels(data)
+                result.success(true)
+            }
+            "showCallNotification" -> {
+                // extract data
+                val data = RingerData(call.arguments())
+                // create notification builder
+                val notificationBuilder = NotificationBuilder(this.context!!)
+                notificationBuilder.showRingNotification(data)
+                result.success(true)
             }
             "checkLaunchedUponCall" -> {
                 result.success(launchedOnCall)
+            }
+            "getLaunchedCallerId" -> {
+                result.success(launchedCallerId)
             }
             else -> result.notImplemented()
         }
@@ -100,6 +115,7 @@ class FlutterRingKitPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
         // check accept or reject
         if (actionExtra == Definitions.EXTRA_ACTION_CALL_ACCEPT) {
             launchedOnCall = true
+            launchedCallerId = launchedIntent.getStringExtra(Definitions.EXTRA_CALLER_ID) ?: ""
         }
     }
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="roundedImageViewRounded">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="FullScreenTheme" parent="@android:style/Theme.NoTitleBar.Fullscreen" />
+
+    <style name="MaterialTheme" parent="Theme.MaterialComponents.Light.NoActionBar" />
+</resources>

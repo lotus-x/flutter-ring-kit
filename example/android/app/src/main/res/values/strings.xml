@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="calling_screen_title">Incoming Call</string>
-    <string name="img_call_accept">Call Accept</string>
-    <string name="img_call_reject">Call Reject</string>
+
 </resources>

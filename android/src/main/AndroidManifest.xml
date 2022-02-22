@@ -14,7 +14,7 @@
             android:showOnLockScreen="true"
             android:showWhenLocked="true"
             android:taskAffinity="com.oryn.lotus.flutter_ring_kit.INCOMING_CALL_AFFINITY"
-            android:theme="@android:style/Theme.Holo.NoActionBar"
+            android:theme="@style/FullScreenTheme"
             android:turnScreenOn="true"
             tools:targetApi="o_mr1" />
 

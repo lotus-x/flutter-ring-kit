@@ -3,11 +3,12 @@ package com.oryn.lotus.flutter_ring_kit.receivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
 import android.text.TextUtils
 import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.oryn.lotus.flutter_ring_kit.helpers.IntentHelper
+import com.oryn.lotus.flutter_ring_kit.models.RingerData
+import com.oryn.lotus.flutter_ring_kit.notifications.NotificationBuilder
 import com.oryn.lotus.flutter_ring_kit.utils.Definitions
 
 class ActionBroadcastReceiver : BroadcastReceiver() {
@@ -19,20 +20,18 @@ class ActionBroadcastReceiver : BroadcastReceiver() {
             Definitions.ACTION_CALL_ACCEPT -> {
                 // get extras
                 val extras = intent.extras ?: return
-                // check extras exist
-                val callerId = extras.getString(Definitions.EXTRA_CALLER_ID) ?: return
+                // create data from extra
+                val ringerData = RingerData.fromBundle(extras)
                 // send local broadcast intent
-                val localBundle = Bundle()
-                localBundle.putString(Definitions.EXTRA_CALLER_ID, callerId)
                 val localIntent = Intent(Definitions.ACTION_CALL_ACCEPT).apply {
-                    putExtras(localBundle)
+                    putExtras(ringerData.toBundle())
                 }
                 with(LocalBroadcastManager.getInstance(context.applicationContext)) {
                     sendBroadcast(localIntent)
                 }
                 // close notification
                 with(NotificationManagerCompat.from(context)) {
-                    cancel(callerId.hashCode())
+                    cancel(ringerData.callerId.hashCode())
                 }
                 // get launch intent
                 val launchIntent = IntentHelper.getLaunchIntent(context) ?: return
@@ -41,26 +40,42 @@ class ActionBroadcastReceiver : BroadcastReceiver() {
                     Definitions.EXTRA_LAUNCHED_ACTION,
                     Definitions.EXTRA_ACTION_CALL_ACCEPT
                 )
+                launchIntent.putExtra(Definitions.EXTRA_CALLER_ID, ringerData.callerId)
                 context.startActivity(launchIntent)
             }
             Definitions.ACTION_CALL_REJECT -> {
                 // get extras
                 val extras = intent.extras ?: return
-                // check extras exist
-                val callerId = extras.getString(Definitions.EXTRA_CALLER_ID) ?: return
+                // create data from extra
+                val ringerData = RingerData.fromBundle(extras)
                 // send local broadcast intent
-                val localBundle = Bundle()
-                localBundle.putString(Definitions.EXTRA_CALLER_ID, callerId)
                 val localIntent = Intent(Definitions.ACTION_CALL_REJECT).apply {
-                    putExtras(localBundle)
+                    putExtras(ringerData.toBundle())
                 }
                 with(LocalBroadcastManager.getInstance(context.applicationContext)) {
                     sendBroadcast(localIntent)
                 }
                 // close notification
                 with(NotificationManagerCompat.from(context)) {
-                    cancel(callerId.hashCode())
+                    cancel(ringerData.callerId.hashCode())
                 }
+            }
+            Definitions.ACTION_CALL_TIMED_OUT -> {
+                // get extras
+                val extras = intent.extras ?: return
+                // create data from extra
+                val ringerData = RingerData.fromBundle(extras)
+                // send local broadcast intent
+                val localIntent = Intent(Definitions.ACTION_CALL_TIMED_OUT).apply {
+                    putExtras(ringerData.toBundle())
+                }
+                with(LocalBroadcastManager.getInstance(context.applicationContext)) {
+                    sendBroadcast(localIntent)
+                }
+                // create notification builder
+                val notificationBuilder = NotificationBuilder(context)
+                // show missed call notification
+                notificationBuilder.showMissedCallNotification(ringerData)
             }
         }
     }

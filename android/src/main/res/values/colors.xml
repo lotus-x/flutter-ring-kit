@@ -2,4 +2,10 @@
 <resources>
     <color name="decline_call_btn">#E02B00</color>
     <color name="accept_call_btn">#4CB050</color>
+
+    <color name="dark_text">#1c1c1c</color>
+
+    <color name="ripple_main">#804197E5</color>
+
+    <color name="caller_img_stroke">#2DBAA4</color>
 </resources>

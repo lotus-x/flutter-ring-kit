@@ -1,1 +1,9 @@
-<resources></resources>
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calling_screen_logo">DocMe</string>
+    <string name="calling_screen_title">Incoming Consultation</string>
+    <string name="calling_screen_doctor_name">Dr. Megahead Pillow</string>
+    <string name="calling_screen_description">Appointment Number #1</string>
+    <string name="img_call_accept">Call Accept</string>
+    <string name="img_call_reject">Call Reject</string>
+</resources>
