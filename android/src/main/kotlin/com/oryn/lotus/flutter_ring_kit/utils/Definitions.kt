@@ -8,6 +8,9 @@ class Definitions {
         const val ACTION_CALL_TIMED_OUT = "com.oryn.lotus.flutter_ring_kit.ACTION_CALL_TIMED_OUT"
 
         // extras
+        const val EXTRA_LAUNCHED_ON_CALL = "com.oryn.lotus.flutter_ring_kit.EXTRA_LAUNCHED_ON_CALL"
+        const val EXTRA_LAUNCHED_ON_CALL_DATA =
+            "com.oryn.lotus.flutter_ring_kit.EXTRA_LAUNCHED_ON_CALL_DATA"
         const val EXTRA_LAUNCHED_ACTION = "com.oryn.lotus.flutter_ring_kit.EXTRA_LAUNCHED_ACTION"
         const val EXTRA_ACTION_CALL_ACCEPT = "action_call_answer"
         const val EXTRA_CALLER_ID = "caller_id"

@@ -19,6 +19,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.oryn.lotus.flutter_ring_kit.helpers.IntentHelper
 import com.oryn.lotus.flutter_ring_kit.models.RingerData
 import com.oryn.lotus.flutter_ring_kit.receivers.ActionBroadcastReceiver
 import com.oryn.lotus.flutter_ring_kit.utils.Definitions
@@ -162,11 +163,15 @@ class CallerActivity : Activity() {
     }
 
     fun onAcceptCall(@Suppress("UNUSED_PARAMETER") view: View?) {
-        val intent = Intent(this, ActionBroadcastReceiver::class.java).apply {
-            action = Definitions.ACTION_CALL_ACCEPT
-            putExtras(ringerData.toBundle())
-        }
-        applicationContext.sendBroadcast(intent)
+        val launchIntent = IntentHelper.getLaunchIntent(applicationContext) ?: return
+        // add data
+        launchIntent.putExtra(Definitions.EXTRA_LAUNCHED_ON_CALL, true)
+        launchIntent.putExtra(Definitions.EXTRA_LAUNCHED_ON_CALL_DATA, ringerData.toBundle())
+        launchIntent.putExtra(
+            Definitions.EXTRA_LAUNCHED_ACTION,
+            Definitions.EXTRA_ACTION_CALL_ACCEPT
+        )
+        startActivity(launchIntent)
     }
 
     fun onRejectCall(@Suppress("UNUSED_PARAMETER") view: View?) {

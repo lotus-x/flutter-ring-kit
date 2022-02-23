@@ -1,9 +1,10 @@
 package com.oryn.lotus.flutter_ring_kit
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.annotation.NonNull
+import androidx.core.app.NotificationManagerCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.oryn.lotus.flutter_ring_kit.models.NotificationChannelData
 import com.oryn.lotus.flutter_ring_kit.models.RingerData
 import com.oryn.lotus.flutter_ring_kit.notifications.NotificationBuilder
@@ -53,7 +54,7 @@ class FlutterRingKitPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         binding.addOnNewIntentListener(this)
         // check launched when tap caller notification
-        checkLaunchedOnCallAction(binding.activity)
+        checkLaunchedOnCallAction(binding.activity.intent)
     }
 
     override fun onDetachedFromActivityForConfigChanges() {}
@@ -61,7 +62,7 @@ class FlutterRingKitPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
         binding.addOnNewIntentListener(this)
         // check launched when tap caller notification
-        checkLaunchedOnCallAction(binding.activity)
+        checkLaunchedOnCallAction(binding.activity.intent)
     }
 
     override fun onDetachedFromActivity() {}
@@ -99,33 +100,53 @@ class FlutterRingKitPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
     }
 
     override fun onNewIntent(intent: Intent?): Boolean {
+        return checkLaunchedOnCallAction(intent)
+    }
+
+    private fun checkLaunchedOnCallAction(intent: Intent?): Boolean {
         // check null
         if (intent == null) return false
         // check launch intent
         if (intent.action == Intent.ACTION_MAIN && intent.hasCategory(Intent.CATEGORY_LAUNCHER)) {
             // get extra
-            val actionExtra = intent.getStringExtra(
-                Definitions.EXTRA_LAUNCHED_ACTION
-            ) ?: return false
-            // check type
-            when (actionExtra) {
-                Definitions.EXTRA_ACTION_CALL_ACCEPT -> {
-
+            val launchedOnCall = intent.getBooleanExtra(
+                Definitions.EXTRA_LAUNCHED_ON_CALL,
+                false
+            )
+            if (launchedOnCall) {
+                val launchedData = intent.getBundleExtra(
+                    Definitions.EXTRA_LAUNCHED_ON_CALL_DATA
+                ) ?: return false
+                // create ringer data
+                val ringerData = RingerData.fromBundle(launchedData)
+                // create local intent
+                var localIntent: Intent? = null
+                // get call action
+                val callAction = intent.getStringExtra(Definitions.EXTRA_LAUNCHED_ACTION)
+                // check action
+                if (callAction == Definitions.EXTRA_ACTION_CALL_ACCEPT) {
+                    // close notification
+                    if (context != null) {
+                        with(NotificationManagerCompat.from(context!!)) {
+                            cancel(ringerData.callerId.hashCode())
+                        }
+                    }
+                    // save caller details
+                    this.launchedOnCall = true
+                    this.launchedCallerId = ringerData.callerId
+                    // create local intent
+                    localIntent = Intent(Definitions.ACTION_CALL_ACCEPT).apply {
+                        putExtras(ringerData.toBundle())
+                    }
+                }
+                // send local broadcast intent
+                if (localIntent != null && context != null) {
+                    with(LocalBroadcastManager.getInstance(context!!.applicationContext)) {
+                        sendBroadcast(localIntent)
+                    }
                 }
             }
         }
         return false
-    }
-
-    private fun checkLaunchedOnCallAction(activity: Activity) {
-        // get intent
-        val launchedIntent = activity.intent
-        // check action
-        val actionExtra = launchedIntent.getStringExtra(Definitions.EXTRA_LAUNCHED_ACTION) ?: return
-        // check accept or reject
-        if (actionExtra == Definitions.EXTRA_ACTION_CALL_ACCEPT) {
-            launchedOnCall = true
-            launchedCallerId = launchedIntent.getStringExtra(Definitions.EXTRA_CALLER_ID) ?: ""
-        }
     }
 }

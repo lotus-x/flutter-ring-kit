@@ -13,6 +13,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.oryn.lotus.flutter_ring_kit.CallerActivity
 import com.oryn.lotus.flutter_ring_kit.R
+import com.oryn.lotus.flutter_ring_kit.helpers.IntentHelper
 import com.oryn.lotus.flutter_ring_kit.helpers.StringHelper
 import com.oryn.lotus.flutter_ring_kit.models.NotificationChannelData
 import com.oryn.lotus.flutter_ring_kit.models.RingerData
@@ -154,22 +155,31 @@ class NotificationBuilder(private val context: Context) {
     }
 
     private fun addCallAcceptAction(ringerData: RingerData, builder: NotificationCompat.Builder) {
-        val intent = Intent(context, ActionBroadcastReceiver::class.java).apply {
-            action = Definitions.ACTION_CALL_ACCEPT
-            putExtras(ringerData.toBundle())
-        }
+//        val intent = Intent(context, ActionBroadcastReceiver::class.java).apply {
+//            action = Definitions.ACTION_CALL_ACCEPT
+//            putExtras(ringerData.toBundle())
+//        }
+        val launchIntent = IntentHelper.getLaunchIntent(context) ?: return
+        // add data
+        launchIntent.putExtra(Definitions.EXTRA_LAUNCHED_ON_CALL, true)
+        launchIntent.putExtra(Definitions.EXTRA_LAUNCHED_ON_CALL_DATA, ringerData.toBundle())
+        launchIntent.putExtra(
+            Definitions.EXTRA_LAUNCHED_ACTION,
+            Definitions.EXTRA_ACTION_CALL_ACCEPT
+        )
+        // create pending intent
         val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PendingIntent.getBroadcast(
+            PendingIntent.getActivity(
                 context,
                 0,
-                intent,
+                launchIntent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
         } else {
-            @Suppress("UnspecifiedImmutableFlag") PendingIntent.getBroadcast(
+            @Suppress("UnspecifiedImmutableFlag") PendingIntent.getActivity(
                 context,
                 0,
-                intent,
+                launchIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT
             )
         }
