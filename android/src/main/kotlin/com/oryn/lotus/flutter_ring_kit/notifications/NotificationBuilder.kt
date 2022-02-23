@@ -66,8 +66,8 @@ class NotificationBuilder(private val context: Context) {
             .setTimeoutAfter(ringerData.notificationTimeout.toLong())
             .setStyle(NotificationCompat.BigTextStyle().bigText(ringerData.notificationDescription))
         // add actions
-        addCallAcceptAction(ringerData, builder)
         addCallRejectAction(ringerData, builder)
+        addCallAcceptAction(ringerData, builder)
         // set additional details
         setIcon(ringerData, builder)
         setColor(ringerData, builder)
