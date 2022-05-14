@@ -74,16 +74,20 @@ class FlutterRingKitPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
         }
         when (call.method) {
             "createNotificationChannel" -> {
+                // get arguments
+                val arguments = call.arguments<HashMap<String, Any?>>() ?: return
                 // extract data
-                val data = NotificationChannelData(call.arguments())
+                val data = NotificationChannelData(arguments)
                 // create notification builder
                 val notificationBuilder = NotificationBuilder(this.context!!)
                 notificationBuilder.createNotificationChannels(data)
                 result.success(true)
             }
             "showCallNotification" -> {
+                // get arguments
+                val arguments = call.arguments<HashMap<String, Any?>>() ?: return
                 // extract data
-                val data = RingerData(call.arguments())
+                val data = RingerData(arguments)
                 // create notification builder
                 val notificationBuilder = NotificationBuilder(this.context!!)
                 notificationBuilder.showRingNotification(data)
@@ -99,7 +103,7 @@ class FlutterRingKitPlugin : FlutterPlugin, ActivityAware, MethodCallHandler,
         }
     }
 
-    override fun onNewIntent(intent: Intent?): Boolean {
+    override fun onNewIntent(intent: Intent): Boolean {
         return checkLaunchedOnCallAction(intent)
     }
 

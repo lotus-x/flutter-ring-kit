@@ -12,7 +12,6 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.oryn.lotus.flutter_ring_kit.CallerActivity
-import com.oryn.lotus.flutter_ring_kit.R
 import com.oryn.lotus.flutter_ring_kit.helpers.IntentHelper
 import com.oryn.lotus.flutter_ring_kit.helpers.StringHelper
 import com.oryn.lotus.flutter_ring_kit.models.NotificationChannelData
