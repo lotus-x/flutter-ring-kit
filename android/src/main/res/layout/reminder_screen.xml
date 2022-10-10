@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_centerInParent="true"
+    android:background="@android:color/white"
+    android:gravity="center"
+    android:keepScreenOn="true"
+    android:orientation="vertical">
+
+    <com.oryn.lotus.flutter_ring_kit.widgets.RippleRelativeLayout
+        android:id="@+id/rl_ripple_main"
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+        android:layout_marginTop="50dp">
+
+        <TextView
+            android:id="@+id/txt_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/txt_title"
+            android:layout_centerHorizontal="true"
+            android:text="@string/reminder_screen_logo"
+            android:textColor="@color/dark_text"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/txt_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/img_poster"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="20dp"
+            android:text="@string/reminder_screen_title"
+            android:textColor="@color/dark_text"
+            android:textSize="20sp" />
+
+        <ImageView
+            android:id="@+id/img_poster"
+            android:layout_width="130dp"
+            android:layout_height="130dp"
+            android:layout_centerInParent="true"
+            android:contentDescription="@string/img_reminder_poster"
+            android:padding="4dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/consulting" />
+
+        <TextView
+            android:id="@+id/txt_caller_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/img_poster"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:text="@string/reminder_screen_doctor_name"
+            android:textAlignment="center"
+            android:textColor="@color/dark_text"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/txt_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/txt_caller_name"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="5dp"
+            android:text="@string/reminder_screen_description"
+            android:textAlignment="center"
+            android:textColor="@color/dark_text"
+            android:textSize="13sp" />
+    </com.oryn.lotus.flutter_ring_kit.widgets.RippleRelativeLayout>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="30dp"
+        android:orientation="horizontal"
+        android:paddingHorizontal="20dp">
+
+        <com.oryn.lotus.flutter_ring_kit.widgets.RippleRelativeLayout
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            app:ripple_amount="4"
+            app:ripple_radius="15dp"
+            app:ripple_scale="4.5">
+
+            <RelativeLayout
+                android:id="@+id/rl_ignore"
+                android:layout_width="100dp"
+                android:layout_height="60dp"
+                android:layout_centerInParent="true"
+                android:background="@drawable/bg_reminder_reject"
+                android:onClick="onIgnoreReminder">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="@string/reminder_btn_ignore"
+                    android:textAlignment="center"
+                    android:textColor="@color/light_text"
+                    android:textFontWeight="400"
+                    android:textSize="18sp" />
+            </RelativeLayout>
+        </com.oryn.lotus.flutter_ring_kit.widgets.RippleRelativeLayout>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <com.oryn.lotus.flutter_ring_kit.widgets.RippleRelativeLayout
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            app:ripple_amount="4"
+            app:ripple_radius="15dp"
+            app:ripple_scale="4.5">
+
+            <RelativeLayout
+                android:id="@+id/rl_start"
+                android:layout_width="100dp"
+                android:layout_height="60dp"
+                android:layout_centerInParent="true"
+                android:background="@drawable/bg_reminder_accept"
+                android:onClick="onStartReminder">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="@string/reminder_btn_start"
+                    android:textAlignment="center"
+                    android:textColor="@color/light_text"
+                    android:textFontWeight="400"
+                    android:textSize="18sp" />
+            </RelativeLayout>
+        </com.oryn.lotus.flutter_ring_kit.widgets.RippleRelativeLayout>
+    </LinearLayout>
+</LinearLayout>

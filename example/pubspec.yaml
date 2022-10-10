@@ -7,9 +7,9 @@ environment:
   sdk: ">=2.16.0 <3.0.0"
 
 dependencies:
-  cupertino_icons: 1.0.2
-  firebase_core: 1.12.0
-  firebase_messaging: 11.2.6
+  cupertino_icons: 1.0.5
+  firebase_core: 1.24.0
+  firebase_messaging: 13.1.0
   flutter:
     sdk: flutter
   flutter_ring_kit:
@@ -18,7 +18,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  lint: 1.8.2
+  lint: 1.10.0
 
 flutter:
   uses-material-design: true

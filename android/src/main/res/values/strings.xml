@@ -6,4 +6,13 @@
     <string name="calling_screen_description">Appointment Number #1</string>
     <string name="img_call_accept">Call Accept</string>
     <string name="img_call_reject">Call Reject</string>
+    <string name="reminder_screen_logo">DocMe</string>
+    <string name="reminder_screen_title">Consultation Ready</string>
+    <string name="reminder_screen_doctor_name">Dr. Megahead Pillow</string>
+    <string name="reminder_screen_description">08th October 2022</string>
+    <string name="reminder_btn_start">Start</string>
+    <string name="reminder_btn_ignore">Ignore</string>
+    <string name="img_reminder_accept">Reminder Accept</string>
+    <string name="img_reminder_reject">Reminder Reject</string>
+    <string name="img_reminder_poster">Reminder Poster</string>
 </resources>

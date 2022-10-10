@@ -6,6 +6,7 @@ import android.content.Intent
 import android.text.TextUtils
 import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.oryn.lotus.flutter_ring_kit.models.ReminderData
 import com.oryn.lotus.flutter_ring_kit.models.RingerData
 import com.oryn.lotus.flutter_ring_kit.notifications.NotificationBuilder
 import com.oryn.lotus.flutter_ring_kit.utils.Definitions
@@ -49,6 +50,40 @@ class ActionBroadcastReceiver : BroadcastReceiver() {
                 val notificationBuilder = NotificationBuilder(context)
                 // show missed call notification
                 notificationBuilder.showMissedCallNotification(ringerData)
+            }
+            Definitions.ACTION_REMINDER_REJECT -> {
+                // get extras
+                val extras = intent.extras ?: return
+                // create data from extra
+                val reminderData = ReminderData.fromBundle(extras)
+                // send local broadcast intent
+                val localIntent = Intent(Definitions.ACTION_REMINDER_REJECT).apply {
+                    putExtras(reminderData.toBundle())
+                }
+                with(LocalBroadcastManager.getInstance(context.applicationContext)) {
+                    sendBroadcast(localIntent)
+                }
+                // close notification
+                with(NotificationManagerCompat.from(context)) {
+                    cancel(reminderData.reminderId.hashCode())
+                }
+            }
+            Definitions.ACTION_REMINDER_TIMED_OUT -> {
+                // get extras
+                val extras = intent.extras ?: return
+                // create data from extra
+                val reminderData = ReminderData.fromBundle(extras)
+                // send local broadcast intent
+                val localIntent = Intent(Definitions.ACTION_REMINDER_TIMED_OUT).apply {
+                    putExtras(reminderData.toBundle())
+                }
+                with(LocalBroadcastManager.getInstance(context.applicationContext)) {
+                    sendBroadcast(localIntent)
+                }
+                // create notification builder
+                val notificationBuilder = NotificationBuilder(context)
+                // show missed call notification
+                notificationBuilder.showMissedReminderNotification(reminderData)
             }
         }
     }

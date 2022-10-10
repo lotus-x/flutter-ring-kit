@@ -18,14 +18,27 @@ class CallEventHandler(
         // check intent usable
         if (intent == null || context == null || TextUtils.isEmpty(intent.action)) return
         // check action
-        if (intent.action == Definitions.ACTION_CALL_ACCEPT) {
-            // get caller id
-            val callerId = intent.getStringExtra(Definitions.EXTRA_CALLER_ID)
-            // dispatch to stream
-            eventSink?.success(mapOf(
-                "type" to "call_answered",
-                "callerId" to callerId
-            ))
+        when (intent.action) {
+            Definitions.ACTION_CALL_ACCEPT -> {
+                // get caller id
+                val callerId = intent.getStringExtra(Definitions.EXTRA_CALLER_ID)
+                // dispatch to stream
+                eventSink?.success(
+                    mapOf(
+                        "type" to "call_answered", "callerId" to callerId
+                    )
+                )
+            }
+            Definitions.ACTION_REMINDER_ACCEPT -> {
+                // get reminder id
+                val reminderId = intent.getStringExtra(Definitions.EXTRA_REMINDER_ID)
+                // dispatch to stream
+                eventSink?.success(
+                    mapOf(
+                        "type" to "reminder_accepted", "reminderId" to reminderId
+                    )
+                )
+            }
         }
     }
 
@@ -48,6 +61,7 @@ class CallEventHandler(
         // create intent filter
         val intentFilter = IntentFilter()
         intentFilter.addAction(Definitions.ACTION_CALL_ACCEPT)
+        intentFilter.addAction(Definitions.ACTION_REMINDER_ACCEPT)
         // register broadcast receiver
         with(LocalBroadcastManager.getInstance(context)) {
             registerReceiver(this@CallEventHandler, intentFilter)

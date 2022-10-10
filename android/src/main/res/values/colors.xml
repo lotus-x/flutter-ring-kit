@@ -4,6 +4,7 @@
     <color name="accept_call_btn">#4CB050</color>
 
     <color name="dark_text">#1c1c1c</color>
+    <color name="light_text">#ffffff</color>
 
     <color name="ripple_main">#804197E5</color>
 
