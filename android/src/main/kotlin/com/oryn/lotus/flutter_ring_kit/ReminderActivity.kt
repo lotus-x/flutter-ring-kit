@@ -29,7 +29,7 @@ class ReminderActivity : Activity() {
     private lateinit var broadcastReceiver: BroadcastReceiver
 
     private lateinit var txtTitle: TextView
-    private lateinit var txtCallerName: TextView
+    private lateinit var txtReminderName: TextView
     private lateinit var txtDescription: TextView
     private lateinit var rlStart: RelativeLayout
     private lateinit var rlEnd: RelativeLayout
@@ -98,14 +98,14 @@ class ReminderActivity : Activity() {
 
     private fun initView() {
         txtTitle = findViewById(R.id.txt_title)
-        txtCallerName = findViewById(R.id.txt_caller_name)
+        txtReminderName = findViewById(R.id.txt_reminder_name)
         txtDescription = findViewById(R.id.txt_description)
         rlStart = findViewById(R.id.rl_start)
         rlEnd = findViewById(R.id.rl_ignore)
         rlRippleMain = findViewById(R.id.rl_ripple_main)
         // set values
         txtTitle.text = reminderData.fullScreenTitle
-        txtCallerName.text = reminderData.reminderName
+        txtReminderName.text = reminderData.reminderName
         txtDescription.text = reminderData.fullScreenDescription
         // start rippling
         rlRippleMain.startRippleAnimation()
@@ -147,7 +147,7 @@ class ReminderActivity : Activity() {
         val launchIntent = IntentHelper.getLaunchIntent(applicationContext) ?: return
         // add data
         launchIntent.putExtra(Definitions.EXTRA_LAUNCHED_ON_REMINDER, true)
-        launchIntent.putExtra(Definitions.EXTRA_LAUNCHED_ON_CALL_DATA, reminderData.toBundle())
+        launchIntent.putExtra(Definitions.EXTRA_LAUNCHED_ON_REMINDER_DATA, reminderData.toBundle())
         launchIntent.putExtra(
             Definitions.EXTRA_LAUNCHED_ACTION, Definitions.EXTRA_ACTION_REMINDER_ACCEPT
         )
